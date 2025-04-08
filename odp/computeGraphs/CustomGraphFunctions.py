@@ -55,6 +55,19 @@ def my_sign(x):
         sign[0] = -1
     return sign[0]
 
+def power(x, n):
+    result = hcl.scalar(0, "result", dtype=hcl.Float())
+    
+    # Special cases for common powers
+    if n == 0:
+        result[0] = 1
+    elif n == 1:
+        result[0] = x
+    else:
+        result[0] = hcl.exp(n * hcl.log(x))
+    
+    return result[0]
+
 # ########################## 3D SPATIAL DERIVATIVE FUNCTION #################################
 #
 # def spa_derivX(i, j, k, V, g):
