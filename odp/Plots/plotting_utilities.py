@@ -8,7 +8,29 @@ def plot_isosurface(grid, my_V, plot_option):
 
     dims_plot = plot_option.dims_plot
 
-    grid, my_V = pre_plot(plot_option, grid, my_V)
+    # Add projection handling before pre_plot
+    if hasattr(plot_option, 'project_nd') and plot_option.project_nd:
+        # Get the dimensions we're not plotting
+        all_dims = set(range(grid.dims))
+        plot_dims = set(dims_plot)
+        reduce_dims = list(all_dims - plot_dims)
+        
+        if reduce_dims:  # If we have dimensions to project
+            # Rearrange axes to put reduction dimensions first
+            transpose_order = reduce_dims + list(dims_plot) + [len(all_dims)]
+            my_V = np.transpose(my_V, transpose_order)
+            
+            # Reduce the non-plotted dimensions using minimum
+            for _ in range(len(reduce_dims)):
+                my_V = np.max(my_V, axis=0)
+                
+            # Create new grid with just the plotted dimensions
+            grid_min = grid.min[dims_plot]
+            grid_max = grid.max[dims_plot]
+            pts_each_dim = grid.pts_each_dim[dims_plot]
+            grid = Grid(grid_min, grid_max, len(dims_plot), pts_each_dim)
+    else:
+        grid, my_V = pre_plot(plot_option, grid, my_V)
 
     if len(dims_plot) != 3 and len(dims_plot) != 2 and len(dims_plot) != 1:
         raise Exception('dims_plot length should be equal to 3, 2 or 1\n')
@@ -50,6 +72,8 @@ def plot_isosurface(grid, my_V, plot_option):
             showscale=plot_option.showscale,
         ))
 
+    print(len(dims_plot))
+    print(len(my_V.shape))
     if len(dims_plot) == 3 and len(my_V.shape) == 4:
         # Plot 3D isosurface with animation
         # dim1, dim2, dim3 = dims_plot[0], dims_plot[1], dims_plot[2]

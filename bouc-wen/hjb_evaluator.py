@@ -29,13 +29,13 @@ Note: If run on the server, please save the result and use the plot function on 
 if os.path.exists("plots") == False:
     os.mkdir("plots")
 
-MAX_ERROR = 0.5
+MAX_ERROR = 0.1
 
 # STEP 1: Define grid
-grid_min = np.array([-2.0, -2.0, -3.0, -2.0, -2.0, -3.0])
-grid_max = np.array([2.0, 2.0, 3.0, 2.0, 2.0, 3.0])
+grid_min = np.array([-2.0, -2.0, -2.0, -2.0, -2.0, -2.0])
+grid_max = np.array([2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
 dims = 6
-N = np.array([15, 15, 15, 15, 15, 15])
+N = np.array([25, 25, 25, 25, 25, 25])
 g = Grid(grid_min, grid_max, dims, N)
 
 # TODO: Replace this with error function ( eg h(x) )
@@ -57,12 +57,9 @@ sys6D = BoucWen(1, 0.1, 0.5, 0.5, 1, 0.1, 1, 1, uMin=[0], uMax=[0], dMin=[-2], d
 
 # TODO: Only plot linear dimensions
 # STEP 5: Initialize plotting option
-po = PlotOptions(do_plot=True, plot_type="set", plotDims=[3,4,5], slicesCut=[8,7,9], colorscale="Bluered", save_fig=False, filename="plots/bouc-wen_linear_error_reachability", interactive_html=True)
+po = PlotOptions(do_plot=True, plot_type="set", plotDims=[0,1,2], slicesCut=[7,7,7,7], colorscale="Bluered", save_fig=True, filename="plots/bouc-wen_linear_error_reachability", interactive_html=True, project_nd=True)
 
 # TODO: Whatever this is
 # STEP 6: Call HJSolver function
 compMethod = { "TargetSetMode": "None"}
 result_3 = HJSolver(sys6D, g, Initial_value_f, tau, compMethod, po, saveAllTimeSteps=True)
-
-# Project 6D onto observable linear space by broadcasting minimums
-projected_3d_result = np.min(np.min(np.min(result_3, axis=0), axis=0), axis=0)

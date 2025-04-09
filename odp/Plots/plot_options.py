@@ -1,4 +1,3 @@
-
 class PlotOptions:
   def __init__(
         self, 
@@ -29,7 +28,8 @@ class PlotOptions:
         figSize=None,
         surface_count=1, 
         uid=None, 
-        scale=None
+        scale=None,
+        project_nd=False
         ):
     
     if plot_type not in ["set", "value"]:
@@ -50,6 +50,7 @@ class PlotOptions:
     self.slices = slicesCut
     self.min_isosurface = min_isosurface
     self.max_isosurface = max_isosurface
+    self.project_nd = project_nd
 
 # Plotly save figure option
     self.save_fig = save_fig
