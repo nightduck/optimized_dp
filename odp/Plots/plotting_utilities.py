@@ -17,7 +17,11 @@ def plot_isosurface(grid, my_V, plot_option):
         
         if reduce_dims:  # If we have dimensions to project
             # Rearrange axes to put reduction dimensions first
-            transpose_order = reduce_dims + list(dims_plot) + [len(all_dims)]
+            transpose_order = reduce_dims + list(dims_plot)
+            if len(transpose_order) != len(my_V.shape):
+                for i in range(len(my_V.shape)):
+                    if i not in transpose_order:
+                        transpose_order.append(i)
             my_V = np.transpose(my_V, transpose_order)
             
             # Reduce the non-plotted dimensions using minimum
@@ -72,8 +76,6 @@ def plot_isosurface(grid, my_V, plot_option):
             showscale=plot_option.showscale,
         ))
 
-    print(len(dims_plot))
-    print(len(my_V.shape))
     if len(dims_plot) == 3 and len(my_V.shape) == 4:
         # Plot 3D isosurface with animation
         # dim1, dim2, dim3 = dims_plot[0], dims_plot[1], dims_plot[2]
