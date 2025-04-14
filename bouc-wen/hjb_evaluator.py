@@ -46,16 +46,16 @@ Initial_value_f = Initial_value_f - np.sqrt((g.vs[3] - g.vs[0])**2 + (g.vs[4] - 
 
 # STEP 3: Time length for computations
 Lookback_length = 0.1
-t_step = 0.001
+t_step = 0.01
 
-small_number = 1e-5
+small_number = 1e-6
 tau = np.arange(start=0, stop=Lookback_length + small_number, step=t_step)
 
 # STEP 4: System dynamics for computation
-sys6D = BoucWen(1, 0.1, 0.5, 0.5, 1, 0.1, 1, 1, uMin=[0], uMax=[0], dMin=[-2], dMax=[2])
+sys6D = BoucWen(1, 0.25, 0.5, 0.5, 1, 1, 1, 1, uMin=[0], uMax=[0], dMin=[-2], dMax=[2])
 
 # STEP 5: Initialize plotting option
-po = PlotOptions(do_plot=True, plot_type="set", plotDims=[0,1,2], slicesCut=[7,7,7], colorscale="Bluered", save_fig=True, filename="plots/bouc-wen_linear_error_reachability", interactive_html=True, project_nd=True)
+po = PlotOptions(do_plot=True, plot_type="set", plotDims=[0,1,2], slicesCut=[12,12,12], colorscale="Bluered", save_fig=True, filename="plots/bouc-wen_linear_error_reachability", interactive_html=True, axis_labels=["Displacement", "Velocity", "Hysteretic Displacement"], showlegend=True, project_nd=True)
 
 # STEP 6: Call HJSolver function
 compMethod = { "TargetSetMode": "None"}

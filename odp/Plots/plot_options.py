@@ -14,6 +14,7 @@ class PlotOptions:
         contour=None, 
         flatshading=None,
         downsample=False,
+        axis_labels=None,
         legend=None, 
         legendgroup=None, 
         legendgrouptitle=None, 
@@ -73,6 +74,7 @@ class PlotOptions:
     self.flatshading = flatshading
 
     # TODO: Legends 
+    self.axis_labels = axis_labels
     self.legend = legend
     self.legendgroup = legendgroup 
     self.legendgrouptitle = legendgrouptitle

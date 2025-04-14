@@ -76,6 +76,17 @@ def plot_isosurface(grid, my_V, plot_option):
             showscale=plot_option.showscale,
         ))
 
+        fig.update_layout(
+            title='3D Set',
+            scene=dict(
+                xaxis={"nticks": 20, "title": plot_option.axis_labels[dims_plot[0]]},
+                yaxis={"nticks": 20, "title": plot_option.axis_labels[dims_plot[1]]},
+                zaxis={"nticks": 20, "title": plot_option.axis_labels[dims_plot[2]]},
+                camera_eye={"x": 0, "y": -1, "z": 0.5},
+                aspectratio={"x": 1, "y": 1, "z": 0.6}
+            )
+        )
+
     if len(dims_plot) == 3 and len(my_V.shape) == 4:
         # Plot 3D isosurface with animation
         # dim1, dim2, dim3 = dims_plot[0], dims_plot[1], dims_plot[2]
@@ -136,11 +147,14 @@ def plot_isosurface(grid, my_V, plot_option):
         
         fig.update_layout(
             title='3D Set',
-            scene=dict( xaxis={"nticks": 20},
-                        zaxis={"nticks": 20},
-                        camera_eye={"x": 0, "y": -1, "z": 0.5},
-                        aspectratio={"x": 1, "y": 1, "z": 0.6}
-                        ))
+            scene=dict(
+                xaxis={"nticks": 20, "title": plot_option.axis_labels[dims_plot[0]]},
+                yaxis={"nticks": 20, "title": plot_option.axis_labels[dims_plot[1]]},
+                zaxis={"nticks": 20, "title": plot_option.axis_labels[dims_plot[2]]},
+                camera_eye={"x": 0, "y": -1, "z": 0.5},
+                aspectratio={"x": 1, "y": 1, "z": 0.6}
+            )
+        )
         
         fig = slider_define(fig)
 
