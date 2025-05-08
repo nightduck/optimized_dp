@@ -31,7 +31,8 @@ small_number = 1e-5
 tau = np.arange(start=0, stop=lookback_length + small_number, step=t_step)
 
 po = PlotOptions(do_plot=True, plot_type="set", plotDims=[0,1,3],
-                  slicesCut=[10], save_fig=True, filename="test_obs_avoid.png")
+                  slicesCut=[10], save_fig=True, filename="test_obs_avoid.png",
+                  axis_labels=["x", "y", "speed","theta"])
 
 # In this example, we compute a Backward Reachable Tube
 compMethods = { "TargetSetMode": "minVWithV0"}

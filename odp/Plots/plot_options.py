@@ -73,8 +73,11 @@ class PlotOptions:
     self.contour = contour
     self.flatshading = flatshading
 
-    # TODO: Legends 
-    self.axis_labels = axis_labels
+    # TODO: Legends
+    self.axis_labels = [""] * len(plotDims)
+    if axis_labels is not None:
+        for i in range(len(plotDims)):
+            self.axis_labels[i] = axis_labels[i]
     self.legend = legend
     self.legendgroup = legendgroup 
     self.legendgrouptitle = legendgrouptitle
