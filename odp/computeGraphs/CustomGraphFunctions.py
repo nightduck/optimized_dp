@@ -68,6 +68,11 @@ def power(x, n):
     
     return result[0]
 
+def my_sqrt(x):
+    result = hcl.scalar(0, "result", dtype=hcl.Float())
+    result[0] = hcl.exp(0.5 * hcl.log(x))
+    return result[0]
+
 # ########################## 3D SPATIAL DERIVATIVE FUNCTION #################################
 #
 # def spa_derivX(i, j, k, V, g):

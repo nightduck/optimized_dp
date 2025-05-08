@@ -86,7 +86,8 @@ def solveValueIteration(MDP_obj):
 def HJSolver(dynamics_obj, grid, multiple_value, tau, compMethod,
              plot_option, saveAllTimeSteps=False,
              accuracy="medium", untilConvergent=False, epsilon=2e-3,
-             computeTimeToReach=False):
+             computeTimeToReach=False,
+             forward=False):
 
     print("Welcome to optimized_dp \n")
     if type(multiple_value) == list:
@@ -162,28 +163,32 @@ def HJSolver(dynamics_obj, grid, multiple_value, tau, compMethod,
 
     # Get executable, obstacle check intial value function
     if grid.dims == 1:
-        solve_pde = graph_1D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy)
+        solve_pde = graph_1D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy, forward=forward)
 
     if grid.dims == 2:
-        solve_pde = graph_2D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy)
+        solve_pde = graph_2D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy, forward=forward)
 
     if grid.dims == 3:
-        solve_pde = graph_3D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy)
+        solve_pde = graph_3D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy, forward=forward)
 
     if grid.dims == 4:
-        solve_pde = graph_4D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy)
+        solve_pde = graph_4D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy, forward=forward)
 
     if grid.dims == 5:
-        solve_pde = graph_5D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy)
+        solve_pde = graph_5D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy, forward=forward)
 
     if grid.dims == 6:
-        solve_pde = graph_6D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy)
+        solve_pde = graph_6D(dynamics_obj, grid, compMethod["TargetSetMode"], accuracy, forward=forward)
+    
 
     """ Be careful, for high-dimensional array (5D or higher), saving value arrays at all the time steps may 
     cause your computer to run out of memory """
     if saveAllTimeSteps is True:
         valfuncs = np.zeros(np.insert(tuple(grid.pts_each_dim), grid.dims, len(tau)))
-        valfuncs[..., -1 ] = V_t.asnumpy()
+        if forward == False:
+            valfuncs[..., -1 ] = V_t.asnumpy()
+        else:
+            valfuncs[..., 0] = V_t.asnumpy()
         print(valfuncs.shape)
 
     time_to_reach = np.ones(tuple(grid.pts_each_dim)) * 10000  # when attacker bound to win
@@ -311,7 +316,10 @@ def HJSolver(dynamics_obj, grid, multiple_value, tau, compMethod,
                     break
         else: # if it didn't break because of convergent condition
             if saveAllTimeSteps is True:
-                valfuncs[..., -1-i] = V_t.asnumpy()
+                if forward == False:
+                    valfuncs[..., -1-i] = V_t.asnumpy()
+                else:
+                    valfuncs[..., i] = V_t.asnumpy()
             continue
         break # only if convergent condition is achieved
 
@@ -335,7 +343,10 @@ def HJSolver(dynamics_obj, grid, multiple_value, tau, compMethod,
                 plot_valuefunction(grid,V_t.asnumpy(), plot_option)
 
     if saveAllTimeSteps is True:
-        valfuncs[..., 0] = V_t.asnumpy()
+        if forward == False:
+            valfuncs[..., 0] = V_t.asnumpy()
+        else:
+            valfuncs[..., -1] = V_t.asnumpy()
         if computeTimeToReach:
             return valfuncs, time_to_reach
         return valfuncs

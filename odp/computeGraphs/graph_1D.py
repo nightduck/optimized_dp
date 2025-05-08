@@ -6,7 +6,7 @@ from odp.spatialDerivatives.secondOrderENO.second_orderENO1D import *
 
 #from user_definer import *
 #def graph_1D(dynamics_obj, grid):
-def graph_1D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv_dim=1):
+def graph_1D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv_dim=1, forward=False):
     V_f = hcl.placeholder(tuple(g.pts_each_dim), name="V_f", dtype=hcl.Float())
     V_init = hcl.placeholder(tuple(g.pts_each_dim), name="V_init", dtype=hcl.Float())
     l0 = hcl.placeholder(tuple(g.pts_each_dim), name="l0", dtype=hcl.Float())
@@ -69,7 +69,10 @@ def graph_1D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv
                 dx_dt = my_object.dynamics(t, (x1[i], ), uOpt, dOpt)
 
                 # Calculate Hamiltonian terms:
-                V_new[i] = -(dx_dt[0] * dV_dx[0])
+                if forward == False:
+                    V_new[i] = -(dx_dt[0] * dV_dx[0])
+                else:
+                    V_new[i] = (dx_dt[0] * dV_dx[0])
 
                 # Get derivMin
                 with hcl.if_(dV_dx_L[0] < min_deriv1[0]):

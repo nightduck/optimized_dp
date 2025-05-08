@@ -6,7 +6,7 @@ from odp.spatialDerivatives.secondOrderENO.second_orderENO6D import *
 ########################## 6D graph definition ########################
 
 # Note that t has 2 elements t1, t2
-def graph_6D(my_object, g, compMethod, accuracy):
+def graph_6D(my_object, g, compMethod, accuracy, forward=False):
     V_f = hcl.placeholder(tuple(g.pts_each_dim), name="V_f", dtype=hcl.Float())
     V_init = hcl.placeholder(tuple(g.pts_each_dim), name="V_init", dtype=hcl.Float())
     l0 = hcl.placeholder(tuple(g.pts_each_dim), name="l0", dtype=hcl.Float())
@@ -137,9 +137,14 @@ def graph_6D(my_object, g, compMethod, accuracy):
                                     x1[i], x2[j], x3[k], x4[l], x5[m], x6[n]), uOpt, dOpt)
 
                                     # Calculate Hamiltonian terms:
-                                    V_new[i, j, k, l, m, n] = -(
-                                                dx1_dt * dV_dx1[0] + dx2_dt * dV_dx2[0] + dx3_dt * dV_dx3[0] + dx4_dt *
-                                                dV_dx4[0] + dx5_dt * dV_dx5[0] + dx6_dt * dV_dx6[0])
+                                    if forward == False:
+                                        V_new[i, j, k, l, m, n] = -(
+                                                    dx1_dt * dV_dx1[0] + dx2_dt * dV_dx2[0] + dx3_dt * dV_dx3[0] + dx4_dt *
+                                                    dV_dx4[0] + dx5_dt * dV_dx5[0] + dx6_dt * dV_dx6[0])
+                                    else:
+                                        V_new[i, j, k, l, m, n] = (
+                                                    dx1_dt * dV_dx1[0] + dx2_dt * dV_dx2[0] + dx3_dt * dV_dx3[0] + dx4_dt *
+                                                    dV_dx4[0] + dx5_dt * dV_dx5[0] + dx6_dt * dV_dx6[0])
 
                                     # Get derivMin
                                     with hcl.if_(dV_dx1_L[0] < min_deriv1[0]):

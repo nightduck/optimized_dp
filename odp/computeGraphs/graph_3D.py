@@ -6,7 +6,7 @@ from odp.spatialDerivatives.secondOrderENO.second_orderENO3D import *
 
 #from user_definer import *
 #def graph_3D(dynamics_obj, grid):
-def graph_3D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv_dim=1):
+def graph_3D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv_dim=1, forward=False):
     V_f = hcl.placeholder(tuple(g.pts_each_dim), name="V_f", dtype=hcl.Float())
     V_init = hcl.placeholder(tuple(g.pts_each_dim), name="V_init", dtype=hcl.Float())
     l0 = hcl.placeholder(tuple(g.pts_each_dim), name="l0", dtype=hcl.Float())
@@ -93,7 +93,10 @@ def graph_3D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv
                         dx_dt, dy_dt, dtheta_dt = my_object.dynamics(t, (x1[i], x2[j], x3[k]), uOpt, dOpt)
 
                         # Calculate Hamiltonian terms:
-                        V_new[i, j, k] = -(dx_dt * dV_dx[0] + dy_dt * dV_dy[0] + dtheta_dt * dV_dT[0])
+                        if forward == False:
+                            V_new[i, j, k] = -(dx_dt * dV_dx[0] + dy_dt * dV_dy[0] + dtheta_dt * dV_dT[0])
+                        else:
+                            V_new[i, j, k] = (dx_dt * dV_dx[0] + dy_dt * dV_dy[0] + dtheta_dt * dV_dT[0])
 
                         # Get derivMin
                         with hcl.if_(dV_dx_L[0] < min_deriv1[0]):

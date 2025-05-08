@@ -5,7 +5,7 @@ from odp.spatialDerivatives.firstOrderENO.first_orderENO5D import *
 ########################## 5D graph definition ########################
 
 # Note that t has 2 elements t1, t2
-def graph_5D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv_dim=1):
+def graph_5D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv_dim=1, forward=False):
     V_f = hcl.placeholder(tuple(g.pts_each_dim), name="V_f", dtype=hcl.Float())
     V_init = hcl.placeholder(tuple(g.pts_each_dim), name="V_init", dtype=hcl.Float())
     l0 = hcl.placeholder(tuple(g.pts_each_dim), name="l0", dtype=hcl.Float())
@@ -122,9 +122,14 @@ def graph_5D(my_object, g, compMethod, accuracy, generate_SpatDeriv=False, deriv
                                     dx1_dt, dx2_dt, dx3_dt, dx4_dt, dx5_dt = my_object.dynamics(t, (x1[i], x2[j], x3[k], x4[l], x5[m]), uOpt, dOpt)
                                     
                                     # Calculate Hamiltonian terms:
-                                    V_new[i, j, k, l, m] = -(
-                                                dx1_dt * dV_dx1[0] + dx2_dt * dV_dx2[0] + dx3_dt * dV_dx3[0] + dx4_dt *
-                                                dV_dx4[0] + dx5_dt * dV_dx5[0])
+                                    if forward == False:
+                                        V_new[i, j, k, l, m] = -(
+                                                    dx1_dt * dV_dx1[0] + dx2_dt * dV_dx2[0] + dx3_dt * dV_dx3[0] + dx4_dt *
+                                                    dV_dx4[0] + dx5_dt * dV_dx5[0])
+                                    else:
+                                        V_new[i, j, k, l, m] = (
+                                                    dx1_dt * dV_dx1[0] + dx2_dt * dV_dx2[0] + dx3_dt * dV_dx3[0] + dx4_dt *
+                                                    dV_dx4[0] + dx5_dt * dV_dx5[0])
 
                                     # Get derivMin
                                     with hcl.if_(dV_dx1_L[0] < min_deriv1[0]):
