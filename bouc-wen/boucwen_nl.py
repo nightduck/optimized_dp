@@ -12,8 +12,8 @@ z_dot_linear = A * u_dot_linear
 
 """
 
-class BoucWenAugmented:
-    def __init__(self, A, alpha, beta, gamma, k, c, n, m, x=[0,0,0,0,0,0], uMin = [-1], uMax = [1], dMin = [-0.25], dMax = [0.25], uMode="min", dMode="max"):
+class BoucWenNL:
+    def __init__(self, A, alpha, beta, gamma, k, c, n, m, x=[0,0,0], uMin = [-1], uMax = [1], dMin = [-0.25], dMax = [0.25], uMode="min", dMode="max"):
         """
         Creates a Bouc-Wen model with the following states:
         u: displacement
@@ -55,8 +55,7 @@ class BoucWenAugmented:
         # Declare a variable
         a_term = hcl.scalar(0, "a_term")
         # use the scalar by indexing 0 everytime
-        a_term[0] = spat_deriv[1] * (-self.c * state[1] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m + \
-                    spat_deriv[4] * (-self.c * state[4] - self.alpha * self.k * state[3] - (1 - self.alpha) * self.k * state[5]) / self.m
+        a_term[0] = spat_deriv[1] * (-self.c * state[1] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m
 
         with hcl.if_(a_term >= 0):
             with hcl.if_(self.uMode == "min"):
@@ -64,7 +63,7 @@ class BoucWenAugmented:
         with hcl.elif_(a_term < 0):
             with hcl.if_(self.uMode == "max"):
                 opt_f[0] = -opt_f[0]
-        return (opt_f[0], in2[0],in3[0], in4[0])
+        return (opt_f[0], in2[0], in3[0])
 
     def opt_dstb(self, t, state, spat_deriv):
         """
@@ -77,8 +76,7 @@ class BoucWenAugmented:
         # Declare a variable
         b_term = hcl.scalar(0, "b_term")
         # use the scalar by indexing 0 everytime
-        b_term[0] = spat_deriv[1] * (-self.c * state[1] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m + \
-                    spat_deriv[4] * (-self.c * state[4] - self.alpha * self.k * state[3] - (1 - self.alpha) * self.k * state[5]) / self.m
+        b_term[0] = spat_deriv[1] * (-self.c * state[1] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m
 
         with hcl.if_(b_term[0] >= 0):
             with hcl.if_(self.dMode == "min"):
@@ -86,7 +84,7 @@ class BoucWenAugmented:
         with hcl.elif_(b_term[0] < 0):
             with hcl.if_(self.dMode == "max"):
                 opt_d[0] = -opt_d[0]
-        return (opt_d[0], in2[0], in3[0], in4[0])
+        return (opt_d[0], in2[0], in3[0])
 
     def dynamics(self, t, state, uOpt, dOpt):
         """
@@ -94,17 +92,11 @@ class BoucWenAugmented:
         u_dot = hcl.scalar(0, "u_dot")
         u_ddot = hcl.scalar(0, "u_ddot")
         z_dot = hcl.scalar(0, "z_dot")
-        u_dot_linear = hcl.scalar(0, "u_dot_linear")
-        u_ddot_linear = hcl.scalar(0, "u_ddot_linear")
-        z_dot_linear = hcl.scalar(0, "z_dot_linear")
 
         u_dot[0] = state[1]
         u_ddot[0] = (uOpt[0] - self.c * u_dot[0] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m
         z_dot[0] = self.A * u_dot[0] - self.beta * my_abs(u_dot[0]) * power(state[2], self.n - 1) - self.gamma * u_dot[0] * power(state[2], self.n)
-        u_dot_linear[0] = state[4]
-        u_ddot_linear[0] = (uOpt[0] - self.c * u_dot_linear[0] - self.alpha * self.k * state[3] - (1 - self.alpha) * self.k * state[5]) / self.m
-        z_dot_linear[0] = self.A * u_dot_linear[0]
 
-        return (u_dot[0], u_ddot[0], z_dot[0], u_dot_linear[0], u_ddot_linear[0], z_dot_linear[0])
+        return (u_dot[0], u_ddot[0], z_dot[0])
         
         

@@ -21,7 +21,7 @@ my_car = DubinsCar(uMode="max")
 # Initialize target set as a cylinder
 targeSet = CylinderShape(g, [2], np.array([0.0, 1.0, 0.0]), 0.70)
 
-po = PlotOptions(do_plot=False, plotDims=[0,1,2], slicesCut=[],
+po = PlotOptions(do_plot=False, plotDims=[0,1,2], slicesCut=[], 
                 min_isosurface=0, max_isosurface=0)
 
 lookback_length = 1.5
