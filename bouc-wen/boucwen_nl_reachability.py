@@ -17,6 +17,7 @@ from odp.dynamics import Plane2D, DubinsCar
 from boucwen_nl import BoucWenNL
 import math
 import os
+import sys
 
 # %%
 if os.path.exists("plots") == False:
@@ -36,7 +37,7 @@ g = Grid(grid_min, grid_max, dims, samples)
 # STEP 2: Generate initial values for grid using shape functions
 center = np.zeros(dims)
 Initial_value_f = np.full(g.pts_each_dim, MAX_ERROR)
-Initial_value_f = np.sqrt(g.vs[0]**2 + g.vs[1]**2 + g.vs[2]**2) - 0.2
+Initial_value_f = 0.5 - np.sqrt(g.vs[0]**2 + g.vs[1]**2 + g.vs[2]**2)
 
 print(Initial_value_f.shape)
 
@@ -50,7 +51,7 @@ tau = np.arange(start=0, stop=Lookback_length + small_number, step=t_step)
 
 # %%
 # STEP 4: System dynamics for computation
-sys3D = BoucWenNL(1, 0.25, 0.5, 0.5, 1, 1, 1, 1, uMin=[-1], uMax=[1], dMin=[0], dMax=[0], uMode="max", dMode="min")
+sys3D = BoucWenNL(1, 0.25, 0.5, 0.5, 1, 1, 1, 1, uMin=[-1], uMax=[1], dMin=[0], dMax=[0], uMode="min", dMode="max")
 
 # %%
 # STEP 5: Initialize plotting option
@@ -61,13 +62,17 @@ po = PlotOptions(do_plot=False, plot_type="set", plotDims=[0,1,2], slicesCut=[12
 # %%
 # STEP 6: Call HJSolver function
 compMethod = { "TargetSetMode": "None"}
-value_fn = HJSolver(sys3D, g, Initial_value_f, tau, compMethod, po, saveAllTimeSteps=True)
+value_fn = HJSolver(sys3D, g, Initial_value_f, tau, compMethod, po, saveAllTimeSteps=True, forward=True)
 print(value_fn.shape)
 
 # %%
-np.save("boucwen_nl_forward_reachability.npy", value_fn[:,:,:,::20])
+np.save("boucwen_nl_forward_reachability.npy", value_fn)
 
 # %%
+value_fn = np.load("boucwen_nl_forward_reachability.npy")
+
+# %%
+# print(value_fn[48:53,48:53,48:53,100])
 # STEP 7: Plotting
 # Run marching cubes
 try:
@@ -76,16 +81,19 @@ try:
     # normals: (N, 3) array of normal vectors at each vertex
     # values: (N,) array of function values at each vertex
     verts, faces, normals, values = measure.marching_cubes(
-        volume=value_fn[:,:,:,0],
+        volume=value_fn[:,:,:,400],
         level=0,
         spacing=(grid_max - grid_min) / samples,
-        step_size=5
+        step_size=1
     )
 except ValueError as e:
     print(f"Marching cubes failed: {e}")
     print("This might happen if the level set value {target_level} is outside the range of data,")
     print("or if the data is constant.")
-    exit() # Or handle appropriately
+    sys.exit("Execution stopped to prevent crashing the Jupyter server.")
+
+
+# Stop executing the current cell
 
 # --- 3. Adjust Vertex Coordinates ---
 # Marching cubes returns vertices scaled by spacing, starting from the origin (0,0,0)

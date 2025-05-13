@@ -13,7 +13,7 @@ z_dot_linear = A * u_dot_linear
 """
 
 class BoucWenNL:
-    def __init__(self, A, alpha, beta, gamma, k, c, n, m, x=[0,0,0], uMin = [-1], uMax = [1], dMin = [-0.25], dMax = [0.25], uMode="min", dMode="max"):
+    def __init__(self, A, alpha, beta, gamma, k, c, n, m, x=[0,0,0], uMin = [-1], uMax = [1], dMin = [0], dMax = [0], uMode="min", dMode="max"):
         """
         Creates a Bouc-Wen model with the following states:
         u: displacement
@@ -57,12 +57,23 @@ class BoucWenNL:
         # use the scalar by indexing 0 everytime
         a_term[0] = spat_deriv[1] * (-self.c * state[1] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m
 
-        with hcl.if_(a_term >= 0):
-            with hcl.if_(self.uMode == "min"):
-                opt_f[0] = -opt_f[0]
-        with hcl.elif_(a_term < 0):
-            with hcl.if_(self.uMode == "max"):
-                opt_f[0] = -opt_f[0]
+        if self.uMode == "max":
+            with hcl.if_(spat_deriv[1] > 0): # If spat_deriv[1] > 0
+                opt_f[0] = self.uMax[0]
+            with hcl.elif_(spat_deriv[1] < 0): # If spat_deriv[1] < 0
+                opt_f[0] = self.uMin[0]
+        else:
+            with hcl.if_(spat_deriv[1] > 0): # If spat_deriv[1] > 0
+                opt_f[0] = self.uMin[0]
+            with hcl.elif_(spat_deriv[1] < 0): # If spat_deriv[1] < 0
+                opt_f[0] = self.uMax[0]
+
+        # # with hcl.if_(a_term >= 0):
+        # with hcl.if_(self.uMode == "min"):
+        #     opt_f[0] = self.uMin[0]
+        # # with hcl.elif_(a_term < 0):
+        # with hcl.if_(self.uMode == "max"):
+        #     opt_f[0] = self.uMax[0]
         return (opt_f[0], in2[0], in3[0])
 
     def opt_dstb(self, t, state, spat_deriv):
@@ -78,12 +89,24 @@ class BoucWenNL:
         # use the scalar by indexing 0 everytime
         b_term[0] = spat_deriv[1] * (-self.c * state[1] - self.alpha * self.k * state[0] - (1 - self.alpha) * self.k * state[2]) / self.m
 
-        with hcl.if_(b_term[0] >= 0):
-            with hcl.if_(self.dMode == "min"):
-                opt_d[0] = -opt_d[0]
-        with hcl.elif_(b_term[0] < 0):
-            with hcl.if_(self.dMode == "max"):
-                opt_d[0] = -opt_d[0]
+        if self.dMode == "max":
+            with hcl.if_(spat_deriv[1] > 0): # If spat_deriv[1] > 0
+                opt_d[0] = self.dMax[0]
+            with hcl.elif_(spat_deriv[1] < 0): # If spat_deriv[1] < 0
+                opt_d[0] = self.dMin[0]
+        else:
+            with hcl.if_(spat_deriv[1] > 0): # If spat_deriv[1] > 0
+                opt_d[0] = self.dMin[0]
+            with hcl.elif_(spat_deriv[1] < 0): # If spat_deriv[1] < 0
+                opt_d[0] = self.dMax[0]
+                
+        # # with hcl.if_(b_term[0] >= 0):
+        # with hcl.if_(self.dMode == "min"):
+        #     opt_d[0] = self.dMin[0]
+        # # with hcl.elif_(b_term[0] < 0):
+        # with hcl.if_(self.dMode == "max"):
+        #     opt_d[0] = self.dMax[0]
+        
         return (opt_d[0], in2[0], in3[0])
 
     def dynamics(self, t, state, uOpt, dOpt):
